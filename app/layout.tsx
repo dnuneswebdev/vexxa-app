@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vexxa App | Login",
+  title: "VEXXA App",
   description: "Sistema de automação de propostas via WhatsApp",
 };
 

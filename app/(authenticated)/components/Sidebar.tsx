@@ -148,7 +148,7 @@ export function Sidebar({ user }: SidebarProps) {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[250px] p-0 bg-card">
+      <SheetContent side="left" className="w-[250px] p-0">
         <div className="h-full flex flex-col">
           <SidebarContent />
         </div>
@@ -159,12 +159,12 @@ export function Sidebar({ user }: SidebarProps) {
   return (
     <>
       {/* Mobile menu button - will be positioned in the layout */}
-      <div className="absolute top-4 left-4 z-10 md:hidden">
+      <div className="absolute top-4 left-4 z-10 md:hidden dark:bg-card">
         <MobileMenuButton />
       </div>
       
       {/* Desktop sidebar */}
-      <aside className="hidden w-60 h-screen flex-col bg-card md:flex">
+      <aside className="hidden w-60 h-screen flex-col md:flex dark:bg-card">
         <SidebarContent />
       </aside>
     </>
