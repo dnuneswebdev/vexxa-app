@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
 import { useTheme } from "next-themes"
-import { ChevronDown, LayoutDashboard, FileText, LogOut, Sun, Moon } from "lucide-react"
+import { ChevronDown, LayoutDashboard, FileText, LogOut, Sun, Moon, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,6 +13,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { useState, useEffect } from "react"
 
 type User = {
   email?: string | null
@@ -27,6 +33,17 @@ type SidebarProps = {
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
+  const [isMobile, setIsMobile] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  
+  // Check if we're on mobile screen size
+  useEffect(() => {
+    const checkIfMobile = () => setIsMobile(window.innerWidth < 768)
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
+
   const menuItems = [
     {
       name: "Dashboard",
@@ -48,8 +65,9 @@ export function Sidebar({ user }: SidebarProps) {
     await signOut({ redirect: true, callbackUrl: "/auth/login" })
   }
 
-  return (
-    <aside className="w-64 border-r border-border h-screen flex flex-col bg-card">
+  // Sidebar content component to reuse in both desktop and mobile views
+  const SidebarContent = () => (
+    <>
       {/* Logo */}
       <div className="p-6">
         <Image
@@ -72,6 +90,7 @@ export function Sidebar({ user }: SidebarProps) {
               className={`justify-start w-full ${isActive 
                 ? "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary" 
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+              onClick={() => isMobile && setIsOpen(false)}
             >
               <Link href={item.href}>
                 {item.icon}
@@ -117,6 +136,37 @@ export function Sidebar({ user }: SidebarProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </aside>
+    </>
+  )
+
+  // Mobile menu button that appears in the header
+  const MobileMenuButton = () => (
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-[250px] p-0 bg-card">
+        <div className="h-full flex flex-col">
+          <SidebarContent />
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+
+  return (
+    <>
+      {/* Mobile menu button - will be positioned in the layout */}
+      <div className="absolute top-4 left-4 z-10 md:hidden">
+        <MobileMenuButton />
+      </div>
+      
+      {/* Desktop sidebar */}
+      <aside className="hidden w-60 h-screen flex-col bg-card md:flex">
+        <SidebarContent />
+      </aside>
+    </>
   )
 }
