@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
+import { Modal } from "@/components/shared/modal";
 import {
   Table,
   TableBody,
@@ -207,6 +208,9 @@ export default function ProposalsTable() {
     newStatus: "Pendente" | "Cancelado" | "Concluído";
     previousStatus: "Pendente" | "Cancelado" | "Concluído";
   } | null>(null);
+  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
+    null
+  );
   const pageSize = 10; // Maximum 10 rows per page
 
   // Prepare status change and show confirmation dialog
@@ -418,7 +422,10 @@ export default function ProposalsTable() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Ações</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="flex items-center gap-2">
+                    <DropdownMenuItem
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setSelectedProposal(proposal)}
+                    >
                       <Eye className="h-4 w-4" />
                       Detalhes
                     </DropdownMenuItem>
@@ -451,6 +458,34 @@ export default function ProposalsTable() {
         onOpenChange={handleDialogClose}
         onConfirm={handleStatusChange}
         onCancel={handleCancelStatusChange}
+      />
+
+      {/* Proposal Details Modal */}
+      <Modal<Proposal>
+        isOpen={!!selectedProposal}
+        onClose={() => setSelectedProposal(null)}
+        title={`Detalhes da Proposta ${selectedProposal?.id || ""}`}
+        data={selectedProposal || ({} as Proposal)}
+        keyLabels={{
+          client: "Cliente",
+          phone: "Telefone",
+          document: "Documento",
+          address: "Endereço",
+          products: "Produtos",
+          date: "Data",
+          status: "Status",
+        }}
+        keyOrder={
+          [
+            "client",
+            "phone",
+            "document",
+            "address",
+            "products",
+            "date",
+            "status",
+          ] as Array<keyof Proposal>
+        }
       />
     </div>
   );
