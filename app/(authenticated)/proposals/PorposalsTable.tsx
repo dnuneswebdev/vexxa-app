@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -28,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PaginationComponent } from "@/components/shared/pagination";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 
 // Mock data for proposals
 type Proposal = {
@@ -199,18 +201,36 @@ export default function ProposalsTable() {
   const [idFilter, setIdFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState<{
+    id: string;
+    newStatus: "Pendente" | "Cancelado" | "Concluído";
+  } | null>(null);
   const pageSize = 10; // Maximum 10 rows per page
 
-  // Handle status change for individual proposals
-  const handleStatusChange = (
+  // Prepare status change and show confirmation dialog
+  const prepareStatusChange = (
     id: string,
     newStatus: "Pendente" | "Cancelado" | "Concluído"
   ) => {
+    setPendingStatusChange({ id, newStatus });
+    setDialogOpen(true);
+  };
+
+  // Handle status change after confirmation
+  const handleStatusChange = () => {
+    if (!pendingStatusChange) return;
+    
+    const { id, newStatus } = pendingStatusChange;
     const updatedProposals = proposals.map((proposal) =>
       proposal.id === id ? { ...proposal, status: newStatus } : proposal
     );
     setProposals(updatedProposals);
     applyFilters(updatedProposals, idFilter, statusFilter);
+    setPendingStatusChange(null);
+    
+    // Show success toast notification
+    toast.success("Status alterado com sucesso!");
   };
 
   // Apply filters based on current filter values
@@ -335,9 +355,7 @@ export default function ProposalsTable() {
               <TableCell>
                 <Select
                   defaultValue={proposal.status}
-                  onValueChange={(
-                    value: "Pendente" | "Cancelado" | "Concluído"
-                  ) => handleStatusChange(proposal.id, value)}
+                  onValueChange={(value: "Pendente" | "Cancelado" | "Concluído") => prepareStatusChange(proposal.id, value)}
                 >
                   <SelectTrigger className="w-[130px]">
                     <SelectValue placeholder="Status" />
@@ -396,6 +414,16 @@ export default function ProposalsTable() {
         totalItems={totalItems}
         pageSize={pageSize}
         onPageChange={handlePageChange}
+      />
+
+      {/* Confirmation Dialog for Status Changes */}
+      <ConfirmDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title="Confirmar alteração de status"
+        description={`Tem certeza que deseja alterar o status da proposta ${pendingStatusChange?.id || ''} para ${pendingStatusChange?.newStatus || ''}?`}
+        onConfirm={handleStatusChange}
+        onCancel={() => setPendingStatusChange(null)}
       />
     </div>
   );
