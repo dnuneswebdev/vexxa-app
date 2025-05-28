@@ -79,7 +79,7 @@ export function PaginationComponent({
   return (
     <Pagination className="mt-4">
       <PaginationContent>
-        {/* <PaginationItem>
+        <PaginationItem>
           <PaginationPrevious
             href="#"
             onClick={(e) => {
@@ -90,7 +90,7 @@ export function PaginationComponent({
             }}
             className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
           />
-        </PaginationItem> */}
+        </PaginationItem>
 
         {paginationItems.map((item, index) => {
           if (item === "ellipsis") {
@@ -117,7 +117,7 @@ export function PaginationComponent({
           );
         })}
 
-        {/* <PaginationItem>
+        <PaginationItem>
           <PaginationNext
             href="#"
             onClick={(e) => {
@@ -129,10 +129,8 @@ export function PaginationComponent({
             className={
               currentPage >= totalPages ? "pointer-events-none opacity-50" : ""
             }
-          >
-            teste
-          </PaginationNext>
-        </PaginationItem> */}
+          />
+        </PaginationItem>
       </PaginationContent>
     </Pagination>
   );
