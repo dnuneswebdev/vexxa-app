@@ -2,6 +2,7 @@ import { getBudgets } from "@/lib/actions/proposals.actions";
 import { calculateDashboardMetrics } from "@/lib/utils/dashboard-calculations";
 import { ProposalsChart } from "./Chart";
 import { SummaryCards } from "./SummaryCards";
+import { generateChartData } from "@/lib/utils/charts-calculations";
 
 export default async function DashboardPage() {
   try {
@@ -20,6 +21,9 @@ export default async function DashboardPage() {
           monthlyTrend: 0,
         };
 
+    // Gera dados do gráfico dos últimos 12 meses
+    const chartData = generateChartData(budgets || []);
+
     return (
       <div className="space-y-6">
         <div>
@@ -34,7 +38,7 @@ export default async function DashboardPage() {
 
         {/* Charts */}
         <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
-          <ProposalsChart />
+          <ProposalsChart data={chartData} />
         </div>
       </div>
     );
@@ -51,6 +55,8 @@ export default async function DashboardPage() {
       monthlyTrend: 0,
     };
 
+    const emptyChartData = generateChartData([]);
+
     return (
       <div className="space-y-6">
         <div>
@@ -63,7 +69,7 @@ export default async function DashboardPage() {
         <SummaryCards metrics={emptyMetrics} />
 
         <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
-          <ProposalsChart />
+          <ProposalsChart data={emptyChartData} />
         </div>
       </div>
     );
