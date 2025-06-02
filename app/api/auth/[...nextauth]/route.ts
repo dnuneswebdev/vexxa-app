@@ -35,8 +35,6 @@ export const authOptions: NextAuthOptions = {
             return null
           }
 
-          console.log(user);
-
           return {
             id: user.id,
             email: user.email,
@@ -60,19 +58,21 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, account }) {
-      // Add access_token to the token right after sign in
+      // Adiciona o ID do usuário ao token na primeira vez que faz login
       if (account && user) {
+        token.userId = user.id
+        
         // Use the session token from Supabase instead of a mock token
         const { data } = await supabaseAdmin.auth.getSession();
-        return {
-          ...token,
-          accessToken: data?.session?.access_token || '',
-        }
+        token.accessToken = data?.session?.access_token || ''
       }
       return token
     },
     async session({ session, token }) {
-      // Add access_token to the session
+      // Adiciona o ID do usuário e access token à sessão
+      if (token.userId) {
+        session.user.id = token.userId as string
+      }
       session.accessToken = token.accessToken as string
       return session
     },

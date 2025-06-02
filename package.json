@@ -21,6 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "claude-task-master": "^1.6.4",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.511.0",
     "next": "15.3.2",
     "next-auth": "^4.24.11",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/date-fns": "^2.6.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
