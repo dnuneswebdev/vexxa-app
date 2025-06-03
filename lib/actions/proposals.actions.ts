@@ -4,44 +4,54 @@ import { supabaseAdmin } from "../supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-/**
- * Retrieves budget data from Supabase for the authenticated user
- * @returns Array of budget objects for the current user
- */
-export async function getBudgets() {
+export async function getBudgets(
+  searchParams: { [key: string]: string | string[] | null }
+) {
   try {
-    // Get the current session
     const session = await getServerSession(authOptions);
-    
-    // If no session or user, return null
-    if (!session || !session.user) {
-      console.error('No authenticated user found');
-      return null;
+    if (!session?.user?.id) {
+      console.error("Authentication error: No user session found.");
+      return { data: [], count: 0 };
+    }
+    const userId = session.user.id;
+    const pageParam = searchParams?.page;
+    const pageSize = 10;
+    const page = pageParam ? parseInt(String(pageParam), 10) : 1;
+
+    const idParam = searchParams?.budget_id;
+    const idFilter = Array.isArray(idParam) ? idParam[0] : idParam;
+
+    const statusParam = searchParams?.budget_status;
+    const statusFilter = Array.isArray(statusParam) ? statusParam[0] : statusParam;
+
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    let query = supabaseAdmin.from("budgets").select("*", { count: "exact" });
+
+    query = query.eq("userId", userId);
+
+    if (idFilter) {
+      query = query.ilike("budget_id::text", `%${idFilter}%`);
     }
 
-    // Extract the user ID from the session
-    const userId = session.user.id;
-    
-    if (!userId) {
-      console.error('User ID not found in session');
-      return null;
+    if (statusFilter) {
+      query = query.eq("status", statusFilter);
     }
-    
-    // Fetch budgets data from Supabase for the authenticated user
-    const { data: budgets, error } = await supabaseAdmin
-      .from('budgets')
-      .select('*')
-      .eq('userId', userId)
-      .order('created_at', { ascending: false });
+
+    const {
+      data: budgets,
+      error,
+      count,
+    } = await query.order("created_at", { ascending: false }).range(from, to);
 
     if (error) {
-      console.error('Error fetching budgets:', error);
-      return null;
+      console.error("Error fetching budgets:", error.message);
+      return { data: [], count: 0 };
     }
-    
-    return budgets;
+
+    return { data: budgets, count: count ?? 0 };
   } catch (error) {
-    console.error('Unexpected error in getBudgets:', error);
-    return null;
+    console.error("Unexpected error in getBudgets:", error);
+    return { data: [], count: 0 };
   }
 }

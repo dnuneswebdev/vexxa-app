@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { Modal } from "@/components/shared/modal";
 import {
@@ -31,274 +32,110 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PaginationComponent } from "@/components/shared/pagination";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-// Mock data for proposals
-type Proposal = {
-  id: string;
-  client: string;
+export type Budget = {
+  id?: string;
+  budget_id: string;
+  name: string;
   phone: string;
-  document: string;
+  cpf_cnpj: string;
   address: string;
   products: string;
   date: string;
-  status: "Pendente" | "Cancelado" | "Concluído";
+  status: string;
+  created_at?: string;
 };
 
-const mockProposals: Proposal[] = [
-  {
-    id: "#IA-01",
-    client: "Maria Silva",
-    phone: "(11) 98765-4321",
-    document: "123.456.789-00",
-    address: "Rua das Flores, 123 - São Paulo, SP",
-    products: "Janela de Alumínio, Porta de Vidro",
-    date: "27/05/2025",
-    status: "Pendente",
-  },
-  {
-    id: "#IA-02",
-    client: "João Pereira",
-    phone: "(11) 91234-5678",
-    document: "987.654.321-00",
-    address: "Av. Paulista, 1000 - São Paulo, SP",
-    products: "Porta de Entrada, Fechadura Digital",
-    date: "26/05/2025",
-    status: "Concluído",
-  },
-  {
-    id: "#IA-03",
-    client: "Ana Costa",
-    phone: "(11) 99876-5432",
-    document: "456.789.123-00",
-    address: "Rua Augusta, 500 - São Paulo, SP",
-    products: "Box para Banheiro, Espelho",
-    date: "25/05/2025",
-    status: "Cancelado",
-  },
-  {
-    id: "#IA-04",
-    client: "Carlos Oliveira",
-    phone: "(11) 98888-7777",
-    document: "789.123.456-00",
-    address: "Rua Oscar Freire, 300 - São Paulo, SP",
-    products: "Janela Basculante, Vidro Temperado",
-    date: "24/05/2025",
-    status: "Pendente",
-  },
-  {
-    id: "#IA-05",
-    client: "Fernanda Santos",
-    phone: "(11) 97777-8888",
-    document: "321.654.987-00",
-    address: "Alameda Santos, 200 - São Paulo, SP",
-    products: "Porta de Correr, Trilho de Alumínio",
-    date: "23/05/2025",
-    status: "Concluído",
-  },
-  {
-    id: "#IA-06",
-    client: "Roberto Almeida",
-    phone: "(11) 96666-5555",
-    document: "654.987.321-00",
-    address: "Rua Consolação, 400 - São Paulo, SP",
-    products: "Janela Acústica, Vidro Duplo",
-    date: "22/05/2025",
-    status: "Pendente",
-  },
-  {
-    id: "#IA-07",
-    client: "Luciana Martins",
-    phone: "(11) 95555-6666",
-    document: "12.345.678/0001-90",
-    address: "Av. Brigadeiro Faria Lima, 1500 - São Paulo, SP",
-    products: "Fachada de Vidro, Porta Automática",
-    date: "21/05/2025",
-    status: "Cancelado",
-  },
-  {
-    id: "#IA-08",
-    client: "Paulo Mendes",
-    phone: "(11) 94444-3333",
-    document: "234.567.890-00",
-    address: "Rua Haddock Lobo, 250 - São Paulo, SP",
-    products: "Guarda-corpo de Vidro, Corrimão",
-    date: "20/05/2025",
-    status: "Pendente",
-  },
-  {
-    id: "#IA-09",
-    client: "Cristina Lima",
-    phone: "(11) 93333-4444",
-    document: "345.678.901-00",
-    address: "Rua da Consolação, 600 - São Paulo, SP",
-    products: "Espelho Decorativo, Prateleira de Vidro",
-    date: "19/05/2025",
-    status: "Concluído",
-  },
-  {
-    id: "#IA-10",
-    client: "Marcelo Souza",
-    phone: "(11) 92222-1111",
-    document: "23.456.789/0001-01",
-    address: "Av. Rebouças, 800 - São Paulo, SP",
-    products: "Divisória de Vidro, Porta Pivotante",
-    date: "18/05/2025",
-    status: "Pendente",
-  },
-  {
-    id: "#IA-11",
-    client: "Juliana Ferreira",
-    phone: "(11) 91111-2222",
-    document: "456.789.012-00",
-    address: "Rua Pamplona, 150 - São Paulo, SP",
-    products: "Box de Vidro, Porta de Alumínio",
-    date: "17/05/2025",
-    status: "Cancelado",
-  },
-  {
-    id: "#IA-12",
-    client: "Ricardo Gomes",
-    phone: "(11) 99999-0000",
-    document: "567.890.123-00",
-    address: "Av. Nove de Julho, 700 - São Paulo, SP",
-    products: "Janela Maxim-ar, Persiana Integrada",
-    date: "16/05/2025",
-    status: "Concluído",
-  },
-  {
-    id: "#IA-13",
-    client: "Patrícia Nunes",
-    phone: "(11) 98765-1234",
-    document: "34.567.890/0001-12",
-    address: "Rua Bela Cintra, 350 - São Paulo, SP",
-    products: "Porta Pantográfica, Vidro Laminado",
-    date: "15/05/2025",
-    status: "Pendente",
-  },
-  {
-    id: "#IA-14",
-    client: "Eduardo Castro",
-    phone: "(11) 91234-9876",
-    document: "678.901.234-00",
-    address: "Alameda Campinas, 180 - São Paulo, SP",
-    products: "Janela Veneziana, Tela Mosquiteira",
-    date: "14/05/2025",
-    status: "Concluído",
-  },
-  {
-    id: "#IA-15",
-    client: "Aline Rodrigues",
-    phone: "(11) 99876-1234",
-    document: "789.012.345-00",
-    address: "Rua Augusta, 900 - São Paulo, SP",
-    products: "Espelho Bisotado, Porta de Correr",
-    date: "13/05/2025",
-    status: "Pendente",
-  },
-];
+interface ProposalsTableProps {
+  initialBudgets: Budget[];
+  totalBudgets: number;
+}
 
-export default function ProposalsTable() {
-  const [proposals, setProposals] = useState<Proposal[]>(mockProposals);
-  const [idFilter, setIdFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+export default function ProposalsTable({
+  initialBudgets,
+  totalBudgets,
+}: ProposalsTableProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
   const [pendingStatusChange, setPendingStatusChange] = useState<{
     id: string;
-    newStatus: "Pendente" | "Cancelado" | "Concluído";
-    previousStatus: "Pendente" | "Cancelado" | "Concluído";
+    budget_id: string;
+    newStatus: string;
+    previousStatus: string;
   } | null>(null);
-  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
-    null
-  );
-  const pageSize = 10; // Maximum 10 rows per page
+  const pageSize = 10;
+  const idFilter = searchParams.get("budget_id") || "";
+  const statusFilter = searchParams.get("budget_status") || "";
 
-  // Prepare status change and show confirmation dialog
+  useEffect(() => {
+    setBudgets(initialBudgets);
+  }, [initialBudgets]);
+
+  const handleFilterChange = (key: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const prepareStatusChange = (
     id: string,
-    newStatus: "Pendente" | "Cancelado" | "Concluído",
-    previousStatus: "Pendente" | "Cancelado" | "Concluído"
+    budget_id: string,
+    newStatus: string,
+    previousStatus: string
   ) => {
-    setPendingStatusChange({ id, newStatus, previousStatus });
+    setPendingStatusChange({ id, budget_id, newStatus, previousStatus });
     setDialogOpen(true);
   };
 
-  // Handle status change after confirmation
-  const handleStatusChange = () => {
-    if (!pendingStatusChange) return;
-
-    const { id, newStatus } = pendingStatusChange;
-    const updatedProposals = proposals.map((proposal) =>
-      proposal.id === id ? { ...proposal, status: newStatus } : proposal
-    );
-
-    setProposals(updatedProposals);
-    applyFilters(updatedProposals, idFilter, statusFilter);
-    setPendingStatusChange(null);
+  const handleDialogClose = () => {
     setDialogOpen(false);
-
-    // Show success toast notification
-    toast.success("Status alterado com sucesso!");
-  };
-
-  // Handle cancel of status change
-  const handleCancelStatusChange = () => {
     setPendingStatusChange(null);
   };
 
-  // Handle dialog close
-  const handleDialogClose = (open: boolean) => {
-    setDialogOpen(open);
-    if (!open) {
-      // Reset pending status when dialog closes without confirmation
-      setPendingStatusChange(null);
+  const handleStatusChange = async () => {
+    if (pendingStatusChange) {
+      toast.success("Status alterado com sucesso");
+      handleDialogClose();
     }
   };
 
-  // Apply filters based on current filter values
-  const applyFilters = (data: Proposal[], id: string, status: string) => {
-    return data.filter((proposal) => {
-      const matchesId = id
-        ? proposal.id.toLowerCase().includes(id.toLowerCase())
-        : true;
-      const matchesStatus = status ? proposal.status === status : true;
-      return matchesId && matchesStatus;
-    });
+  const handleCancelStatusChange = () => {
+    handleDialogClose();
   };
 
-  const filteredProposals = applyFilters(proposals, idFilter, statusFilter);
+  const viewBudgetDetails = (budget: Budget) => {
+    const filteredBudgets = {
+      budget_id: `#${budget.budget_id}`,
+      name: budget.name,
+      phone: budget.phone,
+      cpf_cnpj: budget.cpf_cnpj,
+      address: budget.address,
+      products: budget.products,
+      date: budget.date,
+      status: budget.status.toUpperCase(),
+    };
 
-  // Calculate pagination
-  const totalItems = filteredProposals.length;
+    setSelectedBudget(filteredBudgets);
+  };
 
-  // Get current page data
-  const currentData = useMemo(() => {
-    const firstPageIndex = (currentPage - 1) * pageSize;
-    const lastPageIndex = firstPageIndex + pageSize;
-    return filteredProposals.slice(firstPageIndex, lastPageIndex);
-  }, [filteredProposals, currentPage, pageSize]);
-
-  // Handle page change
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    const params = new URLSearchParams(searchParams);
+    params.set("page", String(page));
+    router.push(`${pathname}?${params.toString()}`);
   };
 
-  const handleIdFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setIdFilter(value);
-    applyFilters(proposals, value, statusFilter);
-  };
-
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value);
-    applyFilters(proposals, idFilter, value);
-  };
-
-  // Clear all filters
   const clearFilters = () => {
-    setIdFilter("");
-    setStatusFilter("");
-    setCurrentPage(1); // Reset to first page when clearing filters
+    router.push(pathname);
   };
 
   return (
@@ -313,7 +150,7 @@ export default function ProposalsTable() {
             <Input
               placeholder="Buscar por ID..."
               value={idFilter}
-              onChange={handleIdFilterChange}
+              onChange={(e) => handleFilterChange("budget_id", e.target.value)}
               className="pl-8"
             />
           </div>
@@ -321,24 +158,29 @@ export default function ProposalsTable() {
 
         <div className="w-full sm:w-1/3">
           <label className="text-sm font-medium mb-2 block">Status</label>
-          <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) =>
+              handleFilterChange("budget_status", value)
+            }
+          >
             <SelectTrigger>
               <SelectValue placeholder="Selecione um Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Pendente">
+              <SelectItem value="pendente">
                 <span className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-yellow-500"></span>
                   Pendente
                 </span>
               </SelectItem>
-              <SelectItem value="Cancelado">
+              <SelectItem value="cancelado">
                 <span className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-red-500"></span>
                   Cancelado
                 </span>
               </SelectItem>
-              <SelectItem value="Concluído">
+              <SelectItem value="concluido">
                 <span className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-green-500"></span>
                   Concluído
@@ -367,22 +209,26 @@ export default function ProposalsTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentData.map((proposal) => (
-            <TableRow key={proposal.id}>
-              <TableCell className="font-medium">{proposal.id}</TableCell>
-              <TableCell>{proposal.client}</TableCell>
-              <TableCell>{proposal.phone}</TableCell>
-              <TableCell>{proposal.document}</TableCell>
-              <TableCell>{proposal.date}</TableCell>
+          {budgets.map((budget) => (
+            <TableRow key={budget.id}>
+              <TableCell className="font-medium">#{budget.budget_id}</TableCell>
+              <TableCell>{budget.name}</TableCell>
+              <TableCell>{budget.phone}</TableCell>
+              <TableCell>{budget.cpf_cnpj}</TableCell>
+              <TableCell>{budget.date}</TableCell>
               <TableCell>
                 <Select
-                  value={proposal.status}
+                  value={budget.status}
                   onValueChange={(
                     value: "Pendente" | "Cancelado" | "Concluído"
                   ) => {
-                    // Only update the status if it's different from the current one
-                    if (value !== proposal.status) {
-                      prepareStatusChange(proposal.id, value, proposal.status);
+                    if (value !== budget.status) {
+                      prepareStatusChange(
+                        budget.id as string,
+                        budget.budget_id,
+                        value,
+                        budget.status
+                      );
                     }
                   }}
                 >
@@ -390,19 +236,19 @@ export default function ProposalsTable() {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Pendente">
+                    <SelectItem value="pendente">
                       <span className="flex items-center gap-2">
                         <span className="h-2 w-2 rounded-full bg-yellow-500"></span>
                         Pendente
                       </span>
                     </SelectItem>
-                    <SelectItem value="Cancelado">
+                    <SelectItem value="cancelado">
                       <span className="flex items-center gap-2">
                         <span className="h-2 w-2 rounded-full bg-red-500"></span>
                         Cancelado
                       </span>
                     </SelectItem>
-                    <SelectItem value="Concluído">
+                    <SelectItem value="concluido">
                       <span className="flex items-center gap-2">
                         <span className="h-2 w-2 rounded-full bg-green-500"></span>
                         Concluído
@@ -424,7 +270,7 @@ export default function ProposalsTable() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="flex items-center gap-2 cursor-pointer"
-                      onClick={() => setSelectedProposal(proposal)}
+                      onClick={() => viewBudgetDetails(budget)}
                     >
                       <Eye className="h-4 w-4" />
                       Detalhes
@@ -442,34 +288,33 @@ export default function ProposalsTable() {
       </Table>
 
       <PaginationComponent
-        currentPage={currentPage}
-        totalItems={totalItems}
+        currentPage={Number(searchParams.get("page")) || 1}
+        totalItems={totalBudgets}
         pageSize={pageSize}
         onPageChange={handlePageChange}
       />
 
-      {/* Confirmation Dialog for Status Changes */}
       <ConfirmDialog
         open={dialogOpen}
         title="Confirmar alteração de status"
-        description={`Tem certeza que deseja alterar o status da proposta ${
-          pendingStatusChange?.id || ""
-        } para ${pendingStatusChange?.newStatus || ""}?`}
+        description={`Tem certeza que deseja alterar o status do orçamento #${
+          pendingStatusChange?.budget_id || ""
+        } para ${pendingStatusChange?.newStatus.toUpperCase() || ""}?`}
         onOpenChange={handleDialogClose}
         onConfirm={handleStatusChange}
         onCancel={handleCancelStatusChange}
       />
 
-      {/* Proposal Details Modal */}
-      <Modal<Proposal>
-        isOpen={!!selectedProposal}
-        onClose={() => setSelectedProposal(null)}
-        title={`Detalhes da Proposta ${selectedProposal?.id || ""}`}
-        data={selectedProposal || ({} as Proposal)}
+      <Modal<Budget>
+        isOpen={!!selectedBudget}
+        onClose={() => setSelectedBudget(null)}
+        title={`Detalhes do Orçamento ${selectedBudget?.budget_id || ""}`}
+        data={selectedBudget || ({} as Budget)}
         keyLabels={{
-          client: "Cliente",
+          budget_id: "ID",
+          name: "Cliente",
           phone: "Telefone",
-          document: "Documento",
+          cpf_cnpj: "CPF/CNPJ",
           address: "Endereço",
           products: "Produtos",
           date: "Data",
@@ -477,14 +322,15 @@ export default function ProposalsTable() {
         }}
         keyOrder={
           [
-            "client",
+            "budget_id",
+            "name",
             "phone",
-            "document",
+            "cpf_cnpj",
             "address",
             "products",
             "date",
             "status",
-          ] as Array<keyof Proposal>
+          ] as Array<keyof Budget>
         }
       />
     </div>
