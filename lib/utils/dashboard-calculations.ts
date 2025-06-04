@@ -15,7 +15,7 @@ export interface DashboardMetrics {
   monthlyTrend: number
 }
 
-export function calculateDashboardMetrics(budgets: Budget[]): DashboardMetrics {
+export function calculateDashboardMetrics(budgets: Budget[], count: number): DashboardMetrics {
   if (!budgets || budgets.length === 0) {
     return {
       totalBudgets: 0,
@@ -40,7 +40,7 @@ export function calculateDashboardMetrics(budgets: Budget[]): DashboardMetrics {
   const lastMonthStart = startOfMonth(subMonths(now, 1))
 
   // Métricas básicas
-  const totalBudgets = budgets.length
+  const totalBudgets = count
   const pendingBudgets = budgets.filter(budget => budget.status === 'pendente').length
   const completedBudgets = budgets.filter(budget => budget.status === 'concluido').length
 

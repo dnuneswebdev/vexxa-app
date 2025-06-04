@@ -4,6 +4,32 @@ import {supabaseAdmin} from "../supabase";
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/route";
 
+export async function getAllBudgets() {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) return {data: [], count: 0};
+
+    const userId = session.user.id;
+
+    const {data, error, count} = await supabaseAdmin
+      .from("budgets")
+      .select("*", {count: "exact"})
+      .eq("userId", userId)
+      .order("created_at", {ascending: false});
+
+    if (error) {
+      console.error("Error fetching budgets:", error.message);
+      return {data: [], count: 0};
+    }
+
+    return {data: data || [], count: count || 0};
+  } catch (error) {
+    console.error("Unexpected error in getAllBudgets:", error);
+    return {data: [], count: 0};
+  }
+}
+
 export async function getBudgets(searchParams?: {
   [key: string]: string | string[] | null;
 }) {

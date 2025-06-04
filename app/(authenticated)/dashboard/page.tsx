@@ -1,4 +1,4 @@
-import {getBudgets} from "@/lib/actions/proposals.actions";
+import {getAllBudgets} from "@/lib/actions/proposals.actions";
 import {calculateDashboardMetrics} from "@/lib/utils/dashboard-calculations";
 import {ProposalsChart} from "./Chart";
 import {SummaryCards} from "./SummaryCards";
@@ -6,11 +6,11 @@ import {generateChartData} from "@/lib/utils/charts-calculations";
 
 export default async function DashboardPage() {
   try {
-    const budgets = await getBudgets();
+    const {data, count} = await getAllBudgets();
 
     // Se não há orçamentos ou erro na busca, passa métricas zeradas
-    const metrics = budgets.data
-      ? calculateDashboardMetrics(budgets.data)
+    const metrics = data
+      ? calculateDashboardMetrics(data, count)
       : {
           totalBudgets: 0,
           weeklyBudgets: 0,
@@ -21,7 +21,7 @@ export default async function DashboardPage() {
         };
 
     // Gera dados do gráfico dos últimos 12 meses
-    const chartData = generateChartData(budgets.data || []);
+    const chartData = generateChartData(data || []);
 
     return (
       <div className="space-y-6">
