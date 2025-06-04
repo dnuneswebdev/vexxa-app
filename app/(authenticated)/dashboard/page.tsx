@@ -1,17 +1,16 @@
-import { getBudgets } from "@/lib/actions/proposals.actions";
-import { calculateDashboardMetrics } from "@/lib/utils/dashboard-calculations";
-import { ProposalsChart } from "./Chart";
-import { SummaryCards } from "./SummaryCards";
-import { generateChartData } from "@/lib/utils/charts-calculations";
+import {getBudgets} from "@/lib/actions/proposals.actions";
+import {calculateDashboardMetrics} from "@/lib/utils/dashboard-calculations";
+import {ProposalsChart} from "./Chart";
+import {SummaryCards} from "./SummaryCards";
+import {generateChartData} from "@/lib/utils/charts-calculations";
 
 export default async function DashboardPage() {
   try {
-    // Fetch proposals data server-side
     const budgets = await getBudgets();
 
     // Se não há orçamentos ou erro na busca, passa métricas zeradas
-    const metrics = budgets
-      ? calculateDashboardMetrics(budgets)
+    const metrics = budgets.data
+      ? calculateDashboardMetrics(budgets.data)
       : {
           totalBudgets: 0,
           weeklyBudgets: 0,
@@ -22,7 +21,7 @@ export default async function DashboardPage() {
         };
 
     // Gera dados do gráfico dos últimos 12 meses
-    const chartData = generateChartData(budgets || []);
+    const chartData = generateChartData(budgets.data || []);
 
     return (
       <div className="space-y-6">

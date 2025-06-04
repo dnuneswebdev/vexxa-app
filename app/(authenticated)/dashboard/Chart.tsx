@@ -42,7 +42,6 @@ export function ProposalsChart({ data }: ProposalsChartProps) {
     return null;
   };
 
-  // Ícone de trend baseado na tendência
   const getTrendIcon = () => {
     if (stats.trend > 0)
       return <TrendingUp className="h-4 w-4 text-emerald-600" />;
@@ -62,7 +61,7 @@ export function ProposalsChart({ data }: ProposalsChartProps) {
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex flex-col space-y-1">
           <CardTitle className="text-base font-medium">
-            Propostas por mês (últimos 12 meses)
+            Orçamentos por mês (últimos 12 meses)
           </CardTitle>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span>
@@ -121,7 +120,7 @@ export function ProposalsChart({ data }: ProposalsChartProps) {
               <Bar
                 dataKey="propostas"
                 fill="#7b3edf"
-                name="Propostas geradas"
+                name="Orçamentos gerados"
                 radius={[4, 4, 0, 0]}
                 barSize={50}
                 className="hover:opacity-80 transition-opacity"
@@ -136,7 +135,7 @@ export function ProposalsChart({ data }: ProposalsChartProps) {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-muted-foreground">
-                  Mês com mais propostas:
+                  Mês com mais orçamentos:
                 </span>
                 <p className="font-medium text-foreground">
                   {stats.highestMonth.name} ({stats.highestMonth.propostas})
@@ -144,7 +143,7 @@ export function ProposalsChart({ data }: ProposalsChartProps) {
               </div>
               <div>
                 <span className="text-muted-foreground">
-                  Mês com menos propostas:
+                  Mês com menos orçamentos:
                 </span>
                 <p className="font-medium text-foreground">
                   {stats.lowestMonth?.name} ({stats.lowestMonth?.propostas})
