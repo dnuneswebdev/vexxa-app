@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
 import { useTheme } from "next-themes"
-import { ChevronDown, LayoutDashboard, FileText, LogOut, Sun, Moon, Menu } from "lucide-react"
+import { ChevronDown, LayoutDashboard, FileText, LogOut, Sun, Moon, Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -128,6 +128,12 @@ export function Sidebar({ user }: SidebarProps) {
                   <span>Tema Escuro</span>
                 </>
               )}
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+                <Link href="/account">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Minha Conta</span>
+                </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
               <LogOut className="mr-2 h-4 w-4" />
