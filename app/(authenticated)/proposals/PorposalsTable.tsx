@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { toast } from "sonner";
-import { Modal } from "@/components/shared/modal";
+import {useState, useMemo, useEffect} from "react";
+import {toast} from "sonner";
+import {Modal} from "@/components/shared/modal";
 import {
   Table,
   TableBody,
@@ -19,9 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Eye, FileText, MoreHorizontal, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {Eye, FileText, MoreHorizontal, Search} from "lucide-react";
+import {Input} from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,9 +30,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PaginationComponent } from "@/components/shared/pagination";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {PaginationComponent} from "@/components/shared/pagination";
+import {ConfirmDialog} from "@/components/shared/confirm-dialog";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import {updateBudgetStatus} from "@/lib/actions/proposals.actions";
 
 export type Budget = {
   id?: string;
@@ -62,6 +63,7 @@ export default function ProposalsTable({
   const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [pendingStatusChange, setPendingStatusChange] = useState<{
     id: string;
     budget_id: string;
@@ -93,7 +95,7 @@ export default function ProposalsTable({
     newStatus: string,
     previousStatus: string
   ) => {
-    setPendingStatusChange({ id, budget_id, newStatus, previousStatus });
+    setPendingStatusChange({id, budget_id, newStatus, previousStatus});
     setDialogOpen(true);
   };
 
@@ -103,13 +105,63 @@ export default function ProposalsTable({
   };
 
   const handleStatusChange = async () => {
-    if (pendingStatusChange) {
-      toast.success("Status alterado com sucesso");
-      handleDialogClose();
+    if (!pendingStatusChange) return;
+
+    setIsUpdating(true);
+
+    try {
+      const result = await updateBudgetStatus(
+        pendingStatusChange.id,
+        pendingStatusChange.newStatus
+      );
+
+      if (result.success) {
+        setBudgets((prev) =>
+          prev.map((budget) =>
+            budget.id === pendingStatusChange.id
+              ? {...budget, status: pendingStatusChange.newStatus}
+              : budget
+          )
+        );
+
+        toast.success("Status alterado com sucesso");
+        handleDialogClose();
+      } else {
+        toast.error("Erro ao alterar status");
+
+        setBudgets((prev) =>
+          prev.map((budget) =>
+            budget.id === pendingStatusChange.id
+              ? {...budget, status: pendingStatusChange.previousStatus}
+              : budget
+          )
+        );
+      }
+    } catch (error) {
+      toast.error("Erro inesperado ao alterar status");
+
+      setBudgets((prev) =>
+        prev.map((budget) =>
+          budget.id === pendingStatusChange.id
+            ? {...budget, status: pendingStatusChange.previousStatus}
+            : budget
+        )
+      );
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleCancelStatusChange = () => {
+    if (pendingStatusChange) {
+      setBudgets((prev) =>
+        prev.map((budget) =>
+          budget.id === pendingStatusChange.id
+            ? {...budget, status: pendingStatusChange.previousStatus}
+            : budget
+        )
+      );
+    }
     handleDialogClose();
   };
 
@@ -219,10 +271,16 @@ export default function ProposalsTable({
               <TableCell>
                 <Select
                   value={budget.status}
+                  disabled={isUpdating}
                   onValueChange={(
-                    value: "Pendente" | "Cancelado" | "Concluído"
+                    value: "pendente" | "cancelado" | "concluido"
                   ) => {
                     if (value !== budget.status) {
+                      setBudgets((prev) =>
+                        prev.map((b) =>
+                          b.id === budget.id ? {...b, status: value} : b
+                        )
+                      );
                       prepareStatusChange(
                         budget.id as string,
                         budget.budget_id,
@@ -303,6 +361,7 @@ export default function ProposalsTable({
         onOpenChange={handleDialogClose}
         onConfirm={handleStatusChange}
         onCancel={handleCancelStatusChange}
+        // loading={isUpdating}
       />
 
       <Modal<Budget>
