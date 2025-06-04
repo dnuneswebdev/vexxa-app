@@ -45,6 +45,7 @@ export type Budget = {
   products: string;
   date: string;
   status: string;
+  budget_file?: string;
   created_at?: string;
 };
 
@@ -178,6 +179,10 @@ export default function ProposalsTable({
     };
 
     setSelectedBudget(filteredBudgets);
+  };
+
+  const viewBudgetFile = (budget: Budget) => {
+    window.open(budget.budget_file, "_blank");
   };
 
   const handlePageChange = (page: number) => {
@@ -333,7 +338,10 @@ export default function ProposalsTable({
                       <Eye className="h-4 w-4" />
                       Detalhes
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-2">
+                    <DropdownMenuItem
+                      className="flex items-center gap-2"
+                      onClick={() => viewBudgetFile(budget)}
+                    >
                       <FileText className="h-4 w-4" />
                       Orçamento
                     </DropdownMenuItem>
