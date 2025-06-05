@@ -1,8 +1,14 @@
+import type {Metadata} from "next";
 import {getAllBudgets} from "@/lib/actions/proposals.actions";
 import {calculateDashboardMetrics} from "@/lib/utils/dashboard-calculations";
 import {ProposalsChart} from "./Chart";
 import {SummaryCards} from "./SummaryCards";
 import {generateChartData} from "@/lib/utils/charts-calculations";
+
+export const metadata: Metadata = {
+  title: "VEXXA App | Dashboard",
+  description: "Sistema de automação de propostas via WhatsApp",
+};
 
 export default async function DashboardPage() {
   try {

@@ -1,10 +1,16 @@
-import { getBudgets } from "@/lib/actions/proposals.actions";
+import type {Metadata} from "next";
+import {getBudgets} from "@/lib/actions/proposals.actions";
 import ProposalsTable from "./PorposalsTable";
+
+export const metadata: Metadata = {
+  title: "VEXXA App | Orçamentos",
+  description: "Sistema de automação de propostas via WhatsApp",
+};
 
 export default async function ProposalsPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | null };
+  searchParams: {[key: string]: string | string[] | null};
 }) {
   try {
     const budgetData = await getBudgets(searchParams);
