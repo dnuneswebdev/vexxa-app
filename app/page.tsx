@@ -15,7 +15,7 @@ export default function Home() {
     }
     // If not authenticated, redirect to login
     else if (status === "unauthenticated") {
-      redirect("/auth/login");
+      redirect("/login");
     }
   }, [status]);
 

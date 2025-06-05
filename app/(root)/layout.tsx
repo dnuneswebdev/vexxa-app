@@ -5,7 +5,7 @@ import {redirect} from "next/navigation";
 import {useEffect} from "react";
 import {useTheme} from "next-themes";
 import Image from "next/image";
-import {Sidebar} from "@/app/(authenticated)/components/Sidebar";
+import {Sidebar} from "./components/Sidebar";
 import {PageLoading} from "@/components/loading";
 
 export default function AuthenticatedLayout({

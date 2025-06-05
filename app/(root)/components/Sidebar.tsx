@@ -62,7 +62,7 @@ export function Sidebar({ user }: SidebarProps) {
   }
 
   const handleSignOut = async () => {
-    await signOut({ redirect: true, callbackUrl: "/auth/login" })
+    await signOut({ redirect: true, callbackUrl: "/login" })
   }
 
   // Sidebar content component to reuse in both desktop and mobile views

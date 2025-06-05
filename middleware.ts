@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   
   // Define public paths that don't require authentication
-  const isPublicPath = path === '/auth/login'
+  const isPublicPath = path === '/login'
   
   // Get token
   const token = await getToken({
@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
   if (!isPublicPath && !token) {
     // If user is not authenticated and trying to access a protected route,
     // redirect to login page
-    return NextResponse.redirect(new URL('/auth/login', request.url))
+    return NextResponse.redirect(new URL('/login', request.url))
   }
   
   return NextResponse.next()
@@ -36,6 +36,6 @@ export const config = {
     '/dashboard/:path*',
     '/proposals/:path*',
     '/account/:path*',
-    '/auth/login',
+    '/login',
   ],
 }
