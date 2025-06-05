@@ -1,12 +1,12 @@
 "use client";
 
-import {useSession} from "next-auth/react";
 import {redirect} from "next/navigation";
 import {useEffect} from "react";
 import {PageLoading} from "@/components/loading";
+import {useSessionManager} from "@/hooks/useSessionManager";
 
 export default function Home() {
-  const {status} = useSession();
+  const {status} = useSessionManager();
 
   useEffect(() => {
     // If authenticated, redirect to dashboard

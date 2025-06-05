@@ -1,19 +1,19 @@
 "use client";
 
-import {useSession} from "next-auth/react";
 import {redirect} from "next/navigation";
 import {useEffect} from "react";
 import {useTheme} from "next-themes";
 import Image from "next/image";
 import {Sidebar} from "./components/Sidebar";
 import {PageLoading} from "@/components/loading";
+import {useSessionManager} from "@/hooks/useSessionManager";
 
 export default function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const {data: session, status} = useSession();
+  const {session, status} = useSessionManager();
   const {setTheme} = useTheme();
 
   // Restore user's previous theme preference after login
@@ -28,12 +28,12 @@ export default function AuthenticatedLayout({
 
   // If the user is not authenticated, redirect to login
   if (status === "unauthenticated") {
-    redirect("/auth/login");
+    redirect("/login");
   }
 
   // Show loading state while checking authentication
   if (status === "loading") {
-    return <PageLoading message="Verificando autenticação..." />;
+    return <PageLoading message="Aguarde..." />;
   }
 
   return (
@@ -45,9 +45,6 @@ export default function AuthenticatedLayout({
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header - Only visible on mobile */}
         <header className="md:hidden flex items-center justify-between p-4 border-b">
-          <div className="flex items-center">
-            {/* The mobile menu button from Sidebar will appear here */}
-          </div>
           <div className="flex-1 flex justify-center">
             <Image
               src="/images/vexxa-horizontal-transparent.png"
@@ -57,10 +54,9 @@ export default function AuthenticatedLayout({
               className="h-8 w-auto"
             />
           </div>
-          <div className="w-10"></div> {/* Spacer for alignment */}
+          <div className="w-10"></div>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6 bg-muted dark:bg-background">
           {children}
         </main>
