@@ -191,6 +191,9 @@ export default function ProposalsTable({
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  // Verifica se há filtros ativos
+  const hasActiveFilters = idFilter || statusFilter;
+
   const clearFilters = () => {
     router.push(pathname);
   };
@@ -247,7 +250,12 @@ export default function ProposalsTable({
           </Select>
         </div>
         <div className="w-full sm:w-1/3 flex justify-end">
-          <Button variant="outline" onClick={clearFilters}>
+          <Button
+            variant="outline"
+            onClick={clearFilters}
+            disabled={!hasActiveFilters}
+            className="cursor-pointer disabled:cursor-not-allowed"
+          >
             Limpar filtros
           </Button>
         </div>
