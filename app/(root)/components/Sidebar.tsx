@@ -17,6 +17,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetTitle,
 } from "@/components/ui/sheet"
 import { useState, useEffect } from "react"
 
@@ -58,10 +59,12 @@ export function Sidebar({ user }: SidebarProps) {
   ]
 
   const toggleTheme = () => {
+    setIsOpen(false)
     setTheme(theme === "dark" ? "light" : "dark")
   }
 
   const handleSignOut = async () => {
+    setIsOpen(false)
     await signOut({ redirect: true, callbackUrl: "/login" })
   }
 
@@ -129,7 +132,7 @@ export function Sidebar({ user }: SidebarProps) {
                 </>
               )}
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild onClick={() => setIsOpen(false)}>
                 <Link href="/account">
                   <User className="mr-2 h-4 w-4" />
                   <span>Minha Conta</span>
@@ -155,6 +158,7 @@ export function Sidebar({ user }: SidebarProps) {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[250px] p-0">
+        <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
         <div className="h-full flex flex-col">
           <SidebarContent />
         </div>
