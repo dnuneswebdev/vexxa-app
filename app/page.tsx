@@ -1,27 +1,24 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { redirect } from "next/navigation"
-import { useEffect } from "react"
+import {useSession} from "next-auth/react";
+import {redirect} from "next/navigation";
+import {useEffect} from "react";
+import {PageLoading} from "@/components/loading";
 
 export default function Home() {
-  const { status } = useSession()
+  const {status} = useSession();
 
   useEffect(() => {
     // If authenticated, redirect to dashboard
     if (status === "authenticated") {
-      redirect("/dashboard")
+      redirect("/dashboard");
     }
     // If not authenticated, redirect to login
     else if (status === "unauthenticated") {
-      redirect("/auth/login")
+      redirect("/auth/login");
     }
-  }, [status])
+  }, [status]);
 
   // Show loading state while checking authentication
-  return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-    </div>
-  )
+  return <PageLoading message="Verificando autenticação..." />;
 }

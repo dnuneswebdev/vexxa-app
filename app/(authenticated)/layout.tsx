@@ -1,43 +1,39 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { redirect } from "next/navigation"
-import { useEffect } from "react"
-import { useTheme } from "next-themes"
-import Image from "next/image"
-// Import the Sidebar component directly to fix the module import error
-import { Sidebar } from "@/app/(authenticated)/components/Sidebar"
+import {useSession} from "next-auth/react";
+import {redirect} from "next/navigation";
+import {useEffect} from "react";
+import {useTheme} from "next-themes";
+import Image from "next/image";
+import {Sidebar} from "@/app/(authenticated)/components/Sidebar";
+import {PageLoading} from "@/components/loading";
 
 export default function AuthenticatedLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const { data: session, status } = useSession()
-  const { setTheme } = useTheme()
-  
+  const {data: session, status} = useSession();
+  const {setTheme} = useTheme();
+
   // Restore user's previous theme preference after login
   useEffect(() => {
-    const previousTheme = localStorage.getItem('vexxa-previous-theme')
+    const previousTheme = localStorage.getItem("vexxa-previous-theme");
     if (previousTheme) {
-      setTheme(previousTheme)
+      setTheme(previousTheme);
       // Clear the stored theme after restoring it
-      localStorage.removeItem('vexxa-previous-theme')
+      localStorage.removeItem("vexxa-previous-theme");
     }
-  }, [setTheme])
+  }, [setTheme]);
 
   // If the user is not authenticated, redirect to login
   if (status === "unauthenticated") {
-    redirect("/auth/login")
+    redirect("/auth/login");
   }
 
   // Show loading state while checking authentication
   if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    )
+    return <PageLoading message="Verificando autenticação..." />;
   }
 
   return (
@@ -63,12 +59,12 @@ export default function AuthenticatedLayout({
           </div>
           <div className="w-10"></div> {/* Spacer for alignment */}
         </header>
-        
+
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6 bg-muted dark:bg-background">
           {children}
         </main>
       </div>
     </div>
-  )
+  );
 }
