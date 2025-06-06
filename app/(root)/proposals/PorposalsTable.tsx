@@ -224,7 +224,7 @@ export default function ProposalsTable({
               handleFilterChange("budget_status", value)
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Selecione um Status" />
             </SelectTrigger>
             <SelectContent>
@@ -254,7 +254,7 @@ export default function ProposalsTable({
             variant="outline"
             onClick={clearFilters}
             disabled={!hasActiveFilters}
-            className="cursor-pointer disabled:cursor-not-allowed"
+            className="cursor-pointer disabled:cursor-not-allowed w-full sm:w-1/3"
           >
             Limpar filtros
           </Button>
